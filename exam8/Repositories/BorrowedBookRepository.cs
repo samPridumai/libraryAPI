@@ -9,58 +9,93 @@ public class BorrowedBookRepository(IDbConnection connection) : IBorrowedBookRep
 {
     public async Task<bool> BorrowBookAsync(int bookId, string userEmail)
     {
-        var sql = """
-                  INSERT INTO borrowed_book
-                  (book_id, user_email, borrowed_at)
-                  VALUES (@book_id, @user_email, NOW());
-                  """;
-        return await connection.ExecuteAsync(sql, new
+        var userId = await connection.QueryFirstOrDefaultAsync<int?>(
+            "SELECT id FROM users WHERE email = @Email", new { Email = userEmail });
+
+        if (userId == null)
+            return false;
+
+        var sqlInsert = """
+                        INSERT INTO borrowedbooks (bookid, userid, borrowedat)
+                        VALUES (@BookId, @UserId, NOW());
+                        """;
+
+        var sqlUpdate = """
+                        UPDATE books SET status = 'borrowed' WHERE id = @BookId;
+                        """;
+
+        int affectedRows = await connection.ExecuteAsync(sqlInsert, new { BookId = bookId, UserId = userId });
+
+        if (affectedRows > 0)
         {
-            book_id = bookId, user_email = userEmail
-        }) > 0;
+            await connection.ExecuteAsync(sqlUpdate, new { BookId = bookId });
+        }
+
+        return affectedRows > 0;
     }
 
     public async Task<bool> ReturnBookAsync(int bookId, string userEmail)
     {
-        var deleteSql = "DELETE FROM borrowed_book WHERE book_id = @book_id AND user_email = @user_email;";
-        int updated = await connection.ExecuteAsync(deleteSql, new
-        {
-            book_id = bookId, user_email = userEmail
-        });
+        var userId = await connection.QueryFirstOrDefaultAsync<int?>(
+            "SELECT id FROM users WHERE email = @Email", new { Email = userEmail });
 
-        if (updated > 0)
+        if (userId == null)
+            return false;
+
+        var sqlUpdateBorrowed = """
+                                UPDATE borrowedbooks
+                                SET returnedat = NOW()
+                                WHERE bookid = @BookId AND userid = @UserId AND returnedat IS NULL;
+                                """;
+
+        var sqlUpdateBook = """
+                            UPDATE books
+                            SET status = 'available'
+                            WHERE id = @BookId;
+                            """;
+
+        int affectedRows = await connection.ExecuteAsync(sqlUpdateBorrowed, new { BookId = bookId, UserId = userId });
+
+        if (affectedRows > 0)
         {
-            var updateSql = "UPDATE books SET status = 'available' WHERE id = @BookId;";
-            await connection.ExecuteAsync(updateSql, new
-            {
-                BookId = bookId
-            });
+            await connection.ExecuteAsync(sqlUpdateBook, new { BookId = bookId });
         }
-        return updated > 0;
+
+        return affectedRows > 0;
     }
-    
+
+
     public async Task<bool> IsBorrowedBookAsync(int bookId, string userEmail)
     {
-        string sql = "SELECT COUNT(*) FROM borrowed_books WHERE book_id = @BookId;";
-        return await connection.ExecuteScalarAsync<int>(sql, new
-        {
-            BookId = bookId, user_email = userEmail
-        }) > 0;
+        var userId = await connection.QueryFirstOrDefaultAsync<int?>(
+            "SELECT id FROM users WHERE email = @Email", new { Email = userEmail });
+        
+        if (userId == null)
+            return false;
+
+        var sql = """
+                  SELECT COUNT(*) FROM borrowedbooks
+                  WHERE bookid = @BookId AND userid = @UserId AND returnedat IS NULL;
+                  """;
+        
+        return await connection.ExecuteScalarAsync<int>(sql, new { BookId = bookId, UserId = userId }) > 0;
     }
 
-    public Task<IEnumerable<BorrowedBook>> GetBorrowedBooksAsync()
+    public async Task<IEnumerable<BorrowedBook>> GetBorrowedBooksAsync()
     {
-        var sql = "SELECT * FROM borrowed_books";
-        return connection.QueryAsync<BorrowedBook>(sql);
+        var sql = "SELECT * FROM borrowedbooks WHERE returnedat IS NULL";
+        return await connection.QueryAsync<BorrowedBook>(sql);
     }
 
     public async Task<IEnumerable<BorrowedBook>> GetUserBookAsync(string userEmail)
     {
-        var sql = """
-                  SELECT * FROM books b 
-                           JOIN borrowed_books bb ON b.id = bb.book_id
-                           WHERE bb.user_email = @UserEmail";
-                  """;
-        return await connection.QueryAsync<BorrowedBook>(sql, new { UserEmail = userEmail }); 
+        var userId = await connection.QueryFirstOrDefaultAsync<int?>(
+            "SELECT id FROM users WHERE email = @Email", new { Email = userEmail });
+        
+        if (userId == null)
+            return Enumerable.Empty<BorrowedBook>();
+
+        var sql = "SELECT * FROM borrowedbooks WHERE userid = @UserId AND returnedat IS NULL";
+        return await connection.QueryAsync<BorrowedBook>(sql, new { UserId = userId });
     }
 }

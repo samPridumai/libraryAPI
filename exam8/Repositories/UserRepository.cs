@@ -16,6 +16,7 @@ public class UserRepository(IDbConnection connection) : IUserRepository
                       (@firstname, @lastname, @email, @phonenumber)
                   RETURNING id;
                   """;
+        
         return await connection.QuerySingleAsync<int>(sql, user);
     }
 
