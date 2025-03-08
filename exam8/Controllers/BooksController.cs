@@ -8,14 +8,12 @@ namespace exam8.Controllers;
 [Route("api/books")]
 public class BooksController(IBookRepository bookRepository) : ControllerBase
 {
-    private readonly string _bookNotFound = "Book Not Found";
-    
     [HttpPost]
     public async Task<ActionResult<Book>> Create([FromBody] Book book)
     {
         if (book == null)
         {
-            return BadRequest(new { message = "Invalid book data" });
+            return BadRequest(new { message = "неверные данные" });
         }
 
         var bookId = await bookRepository.AddBookAsync(book);
@@ -29,7 +27,7 @@ public class BooksController(IBookRepository bookRepository) : ControllerBase
     {
         if (page < 1 || pageSize < 1)
         {
-            return BadRequest(new { message = "Page and pageSize must be greater than zero" });
+            return BadRequest(new { message = "неверные данные" });
         }
 
         var books = await bookRepository.GetBooksAsync(page, pageSize);
@@ -37,7 +35,7 @@ public class BooksController(IBookRepository bookRepository) : ControllerBase
 
         if (!books.Any())
         {
-            return NotFound(_bookNotFound);
+            return NotFound(new { message = "не найдено" });
         }
 
         return Ok(new
@@ -54,7 +52,7 @@ public class BooksController(IBookRepository bookRepository) : ControllerBase
         var book = await bookRepository.GetBookAsyncByIdAsync(id);
         if (book == null)
         {
-            return NotFound(_bookNotFound);
+            return NotFound(new { message = "не найдено" });
         }
         return Ok(book);
     }
@@ -64,22 +62,22 @@ public class BooksController(IBookRepository bookRepository) : ControllerBase
     {
         if (book == null)
         {
-            return BadRequest(new { message = "Invalid book data" });
+            return BadRequest(new { message = "неверные данные" });
         }
 
         var exists = await bookRepository.GetBookAsyncByIdAsync(id);
         if (exists == null)
         {
-            return NotFound(_bookNotFound);
+            return NotFound(new { message = "не найдено" });
         }
 
         var updated = await bookRepository.UpdateBookAsync(id, book);
         if (!updated)
         {
-            return StatusCode(500, new { message = "Failed to update book" });
+            return BadRequest(new { message = "неверные данные" });
         }
 
-        return NoContent(); // 204 No Content
+        return Ok(new { message = "Книга успешно обновлена" }); 
     }
 
     [HttpDelete("{id}")]
@@ -88,15 +86,15 @@ public class BooksController(IBookRepository bookRepository) : ControllerBase
         var exists = await bookRepository.GetBookAsyncByIdAsync(id);
         if (exists == null)
         {
-            return NotFound(_bookNotFound);
+            return NotFound(new { message = "не найдено" });
         }
 
         var deleted = await bookRepository.DeleteBookAsync(id);
         if (!deleted)
         {
-            return StatusCode(500, new { message = "Failed to delete book" });
+            return BadRequest(new { message = "неверные данные" });
         }
 
-        return NoContent(); // 204 No Content
+        return Ok(new { message = "Книга успешно удалена" });
     }
 }
