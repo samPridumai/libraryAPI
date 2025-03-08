@@ -6,7 +6,7 @@ namespace exam8.Controllers;
 
 [ApiController]
 [Route("api/books")]
-public class BooksController(IBookService bookService) : ControllerBase
+public class BooksController(IBookService bookService, IBorrowedBookService borrowedBookService) : ControllerBase
 {
     [HttpPost]
     public async Task<ActionResult<Book>> Create([FromBody] Book book)
@@ -58,5 +58,18 @@ public class BooksController(IBookService bookService) : ControllerBase
             return NotFound(new { message = "не найдено" });
 
         return Ok(new { message = "Книга успешно удалена" });
+    }
+
+    [HttpPost("{id}/return")]
+    public async Task<ActionResult<Book>> ReturnBook(int id, [FromBody] BorrowRequest request)
+    {
+        var email = request.Email;
+        bool success = await borrowedBookService.ReturnBookAsync(id, email);
+        if (!success)
+        {
+            return BadRequest(new { returnErrorMessage = "ошибка" });
+        }
+
+        return Ok(new { message = "Книга успешно возвращена" });
     }
 }
