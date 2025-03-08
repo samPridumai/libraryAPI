@@ -31,7 +31,7 @@ public class BookRepository(IDbConnection connection) : IBookRepository
         return await connection.QueryAsync<Book>(sql, new { PageSize = pageSize, Offset = (page - 1) * pageSize });
     }
 
-    public async Task<Book?> GetBookAsyncByIdAsync(int id)
+    public async Task<Book?> GetBookByIdAsync(int id)
     {
         var sql = "SELECT * FROM Books WHERE Id = @Id;";
         return await connection.QuerySingleOrDefaultAsync<Book>(sql, new { Id = id });

@@ -17,7 +17,7 @@ public class BooksController(IBookRepository bookRepository) : ControllerBase
         }
 
         var bookId = await bookRepository.AddBookAsync(book);
-        var createdBook = await bookRepository.GetBookAsyncByIdAsync(bookId);
+        var createdBook = await bookRepository.GetBookByIdAsync(bookId);
         
         return CreatedAtAction(nameof(GetBookById), new { id = bookId }, createdBook);
     }
@@ -49,7 +49,7 @@ public class BooksController(IBookRepository bookRepository) : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<Book>> GetBookById(int id)
     {
-        var book = await bookRepository.GetBookAsyncByIdAsync(id);
+        var book = await bookRepository.GetBookByIdAsync(id);
         if (book == null)
         {
             return NotFound(new { message = "не найдено" });
@@ -65,7 +65,7 @@ public class BooksController(IBookRepository bookRepository) : ControllerBase
             return BadRequest(new { message = "неверные данные" });
         }
 
-        var exists = await bookRepository.GetBookAsyncByIdAsync(id);
+        var exists = await bookRepository.GetBookByIdAsync(id);
         if (exists == null)
         {
             return NotFound(new { message = "не найдено" });
@@ -83,7 +83,7 @@ public class BooksController(IBookRepository bookRepository) : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteBook(int id)
     {
-        var exists = await bookRepository.GetBookAsyncByIdAsync(id);
+        var exists = await bookRepository.GetBookByIdAsync(id);
         if (exists == null)
         {
             return NotFound(new { message = "не найдено" });

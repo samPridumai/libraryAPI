@@ -5,28 +5,28 @@ namespace exam8.Services;
 
 public class BookService(IBookRepository bookRepository) : IBookService
 {
-    public Task<int> AddBookAsync(Book book)
+    public async Task<int> AddBookAsync(Book book)
     {
-        throw new NotImplementedException();
+        return await bookRepository.AddBookAsync(book);
     }
 
-    public Task<IEnumerable<Book>> GetBooksAsync(int page, int pageSize)
+    public async Task<IEnumerable<Book>> GetBooksAsync(int page, int pageSize)
     {
-        throw new NotImplementedException();
+        return await bookRepository.GetBooksAsync(page, pageSize);
     }
 
-    public Task<Book?> GetBookByIdAsync(int id)
+    public async Task<Book?> GetBookByIdAsync(int id)
     {
-        throw new NotImplementedException();
+        return await bookRepository.GetBookByIdAsync(id);
     }
 
-    public Task<bool> UpdateBookAsync(int id, Book book)
+    public async Task<bool> UpdateBookAsync(int id, Book book)
     {
-        throw new NotImplementedException();
+        return await bookRepository.UpdateBookAsync(id, book);
     }
 
-    public Task<bool> DeleteBookAsync(int id)
+    public async Task<bool> DeleteBookAsync(int id)
     {
-        throw new NotImplementedException();
+        return await bookRepository.DeleteBookAsync(id);
     }
 }
