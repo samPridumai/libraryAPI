@@ -25,7 +25,7 @@ create table books
     status          varchar(20) default 'available'::character varying
         constraint books_status_check
             check ((status)::text = ANY
-                   ((ARRAY ['available'::character varying, 'borrowed'::character varying])::text[])),
+                   (ARRAY [('available'::character varying)::text, ('borrowed'::character varying)::text])),
     createdat       timestamp   default now(),
     pdffilepath     text
 );
