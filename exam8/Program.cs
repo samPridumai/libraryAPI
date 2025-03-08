@@ -1,6 +1,7 @@
 using System.Data;
 using exam8.Interfaces;
 using exam8.Repositories;
+using exam8.Services;
 using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,14 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IBookRepository, BookRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IBorrowedBookRepository, BorrowedBookRepository>();
+
+builder.Services.AddScoped<IBookService, BookService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IBorrowedBookService, BorrowedBookService>();
+
+
 builder.Services.AddControllers();
 
 

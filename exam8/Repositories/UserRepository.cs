@@ -11,9 +11,9 @@ public class UserRepository(IDbConnection connection) : IUserRepository
     {
         var sql = """
                   INSERT INTO users
-                      (first_name, last_name, email, phone_number)
+                      (firstname, lastname, email, phonenumber)
                   VALUES
-                      (@first_name, @last_name, @email, @phone_number)
+                      (@firstname, @lastname, @email, @phonenumber)
                   RETURNING id;
                   """;
         return await connection.QuerySingleAsync<int>(sql, user);
@@ -22,6 +22,9 @@ public class UserRepository(IDbConnection connection) : IUserRepository
     public async Task<User> GetUserByEmailAsync(string Email)
     {
         var sql = "SELECT * FROM users WHERE email = @email";
-        return await connection.QuerySingleAsync<User>(sql, new { email = Email });
+        return await connection.QuerySingleAsync<User>(sql, new
+        {
+            email = Email
+        });
     }
 }
