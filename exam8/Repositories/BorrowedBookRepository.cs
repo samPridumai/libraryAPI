@@ -7,7 +7,7 @@ namespace exam8.Repositories;
 
 public class BorrowedBookRepository(IDbConnection connection) : IBorrowedBookRepository
 {
-    public async Task<bool> BorrowedBookAsync(int bookId, string userEmail)
+    public async Task<bool> BorrowBookAsync(int bookId, string userEmail)
     {
         var sql = """
                   INSERT INTO borrowed_book
