@@ -6,7 +6,7 @@ namespace exam8.Controllers;
 
 [ApiController]
 [Route("/api/users/")]
-public class UsersController(IUserService userService) : ControllerBase
+public class UsersController(IUserService userService, IBorrowedBookService borrowedBookService) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> RegisterUser([FromBody] User user)
@@ -28,4 +28,12 @@ public class UsersController(IUserService userService) : ControllerBase
 
         return Ok(user);
     }
+
+    [HttpGet("{email}/books")]
+    public async Task<IActionResult> GetUserBooks(string email)
+    {
+        var books = await borrowedBookService.GetUserBooksAsync(email);
+        return Ok(books);
+    }
+
 }

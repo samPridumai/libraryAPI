@@ -2,6 +2,7 @@
 using Dapper;
 using exam8.Interfaces;
 using exam8.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace exam8.Repositories;
 
@@ -27,5 +28,17 @@ public class UserRepository(IDbConnection connection) : IUserRepository
         {
             email = Email
         });
+    }
+    
+    public async Task<IEnumerable<BorrowedBook>> GetUserBooksAsync(string email)
+    {
+
+        var sql = """
+                  SELECT b.id as BookId, b.title as BookTitle, b.author as BookAuthor, b.borrowedAt as BookBorrowedAt
+                  FROM borrowedbooks as bb
+                  JOIN books b ON bb.bookid = b.id
+                  WHERE b.email = @Email;
+                  """;
+        return await connection.QueryAsync<BorrowedBook>(sql, new { Email = email });
     }
 }

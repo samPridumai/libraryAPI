@@ -41,4 +41,9 @@ public class BorrowedBookService(
     {
         return await borrowedBookRepository.GetUserBookAsync(userEmail);
     }
+
+    public async Task<IEnumerable<BorrowedBook>> GetUserBooksAsync(string email)
+    {
+        return await borrowedBookRepository.GetUserBookAsync(email);
+    }
 }
