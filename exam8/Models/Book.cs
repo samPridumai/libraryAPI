@@ -9,5 +9,5 @@ public class Book
     public int PublicationYear { get; set; }
     public string Description { get; set; } = null!;
     public string Status { get; set; } = "available";
-    public DateTime CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
 }
