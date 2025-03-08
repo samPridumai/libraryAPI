@@ -1,4 +1,5 @@
 using System.Data;
+using exam8.Extensions;
 using exam8.Interfaces;
 using exam8.Repositories;
 using exam8.Services;
@@ -22,10 +23,9 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IBorrowedBookService, BorrowedBookService>();
 
 
-builder.Services.AddControllers();
-
-
 var app = builder.Build();
+
+app.UseExceptionHandlingMiddleware();
 
 if (app.Environment.IsDevelopment())
 {
